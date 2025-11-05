@@ -15,17 +15,6 @@ model Project {
   plans     Plan[]
 }
 
-model ProjectMember {
-  id        String  @id @default(cuid())
-  role      Role    @default(USER)
-  user      User    @relation(fields: [userId], references: [id])
-  userId    String
-  project   Project @relation(fields: [projectId], references: [id])
-  projectId String
-
-  @@unique([userId, projectId])
-}
-
 enum Role {
   ADMIN
   MANAGER
@@ -34,14 +23,13 @@ enum Role {
 
 model Plan {
   id           String        @id @default(cuid())
+  name         String
+  filePath     String // ex: /uploads/abc123.pdf
+  mimeType     String
   project      Project       @relation(fields: [projectId], references: [id])
   projectId    String
-  fileKey      String
-  fileType     String?
-  width        Int?
-  height       Int?
-  scaleFactor  Float?
-  unit         String?
+  createdAt    DateTime      @default(now())
+  // Measurements liés à ce plan
   measurements Measurement[]
 }
 
@@ -62,7 +50,6 @@ enum MeasurementType {
   POLYLINE
 }
 
-// --- ajoute ces deux lignes dans User ---
 model User {
   id        String          @id @default(cuid())
   email     String          @unique
@@ -70,19 +57,18 @@ model User {
   createdAt DateTime        @default(now())
   members   ProjectMember[]
 
-  // relations NextAuth
+  // NextAuth
   accounts Account[]
   sessions Session[]
 }
 
-// --- remplace/ajoute ces modèles d'auth adaptés à SQLite ---
 model Account {
   id                String  @id @default(cuid())
   userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? // pas de @db.Text en SQLite
+  refresh_token     String?
   access_token      String?
   expires_at        Int?
   token_type        String?
@@ -110,4 +96,13 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model ProjectMember {
+  id        String  @id @default(cuid())
+  role      Role
+  project   Project @relation(fields: [projectId], references: [id])
+  projectId String
+  user      User    @relation(fields: [userId], references: [id])
+  userId    String
 }
