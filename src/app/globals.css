@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
+/* Dark mode via classe .dark sur <html> */
 @custom-variant dark (&:is(.dark *));
+:root { --bg: 247 247 247; --fg: 23 23 23; }
+html, body, #__next { height: 100%; }
+body { @apply antialiased bg-[rgb(var(--bg))] text-[rgb(var(--fg))]; }
 
 
 @theme inline {
